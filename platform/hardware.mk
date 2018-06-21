@@ -137,7 +137,7 @@ PRODUCT_PACKAGES += \
 
 # POWER
 PRODUCT_PACKAGES += \
-    android.hardware.power@1.2-service.yoshino
+    android.hardware.power@1.3-service.yoshino
 
 # RADIO
 PRODUCT_PACKAGES += \
