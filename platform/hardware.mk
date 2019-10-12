@@ -20,6 +20,10 @@ PRODUCT_PACKAGES += \
     audio.usb.default \
     libvolumelistener
 
+# BLUETOOTH
+PRODUCT_PACKAGES += \
+    audio.bluetooth.default
+
 ### CAMERA
 PRODUCT_PACKAGES += \
     Snap
@@ -83,6 +87,10 @@ PRODUCT_PACKAGES += \
     android.hardware.audio.effect@2.0-service \
     android.hardware.soundtrigger@2.2-impl \
     android.hardware.soundtrigger@2.0-service
+
+# BLUETOOTH
+PRODUCT_PACKAGES += \
+    android.hardware.bluetooth.audio@2.0-impl
 
 # CAMERA
 PRODUCT_PACKAGES += \
