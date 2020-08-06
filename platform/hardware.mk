@@ -7,6 +7,17 @@ PRODUCT_PACKAGES += \
     libdisplayconfig \
     liboverlay
 
+PRODUCT_PACKAGES += \
+	android.hardware.graphics.mapper@3.0
+
+## CAS
+#PRODUCT_PACKAGES += \
+	android.hardware.cas.native@1.0 \
+	android.hardware.cas@1.1 \
+	android.hardware.cas@1.1-service \
+	android.hardware.cas@1.0 \
+	android.hardware.cas@1.0-service
+
 ### AUDIO
 PRODUCT_PACKAGES += \
     libvolumelistener \
