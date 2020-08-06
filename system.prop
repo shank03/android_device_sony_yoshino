@@ -23,8 +23,8 @@ vendor.mm.enable.qcom_parser=13342781
 audio.safemedia.force=true
 
 # Sony effect min CPU freq
-sony.effect.cpu_min_freq_big=600
-sony.effect.cpu_min_freq_little=600
+sony.effect.cpu_min_freq_big=300
+sony.effect.cpu_min_freq_little=300
 
 # Stagefright deep audio
 media.stagefright.audio.deep=true
