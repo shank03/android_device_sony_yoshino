@@ -76,6 +76,6 @@
     <bool translatable="false" name="config_wifi_fast_bss_transition_enabled">true</bool>
 
     <!-- Minimum color temperature, in Kelvin, supported by Night display. -->
-    <integer name="config_nightDisplayColorTemperatureMin">1800</integer>
+    <integer name="config_nightDisplayColorTemperatureMin">150</integer>
 
 </resources>
