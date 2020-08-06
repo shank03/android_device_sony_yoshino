@@ -33,6 +33,8 @@ PRODUCT_PACKAGES += \
 DEVICE_PACKAGE_OVERLAYS += \
     $(PLATFORM_PATH)/overlay
 
+include $(PLATFORM_PATH)/hardware/cne/cne.mk
+
 ### RECOVERY
 ifeq ($(WITH_TWRP),true)
 # Add Timezone database
