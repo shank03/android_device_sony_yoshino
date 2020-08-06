@@ -5,6 +5,7 @@ PRODUCT_PACKAGES += \
     libmmlib2d_interface \
     libmm-qcamera \
     libqomx_core
+
 ## IAshmemDeviceService
 PRODUCT_PACKAGES += libashmemd_client
 
@@ -20,3 +21,10 @@ PRODUCT_PACKAGES += \
     liblocation_api \
     android.hardware.gnss@1.0-impl-qti \
     android.hardware.gnss@1.0-service-qti
+
+## Include MODEM (yoshino/hardware/modem)
+include device/sony/yoshino/hardware/modem/Android.mk
+
+PRODUCT_PACKAGES += \
+	dump_miscta \
+	ta_cust_version
