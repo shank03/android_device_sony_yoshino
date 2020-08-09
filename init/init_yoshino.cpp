@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, The Android Open Source Project
  * Copyright (c) 2016, The CyanogenMod Project
- * Copyright (c) 2018, The LineageOS Project
+ * Copyright (c) 2018-2020, The LineageOS Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,8 +32,10 @@
 #include <android-base/logging.h>
 #include <android-base/properties.h>
 #include <sstream>
+#include <fstream>
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#define LOG_TAG "init_yoshino : "
 #include <sys/_system_properties.h>
 
 #include "vendor_init.h"
@@ -100,24 +102,32 @@ static void load_properties_from_file(const char* filename, const char* filter) 
     std::string data;
 
     if (!ReadFileToString(filename, &data)) {
-        PLOG(WARNING) << "Couldn't load property file";
+        PLOG(WARNING) << LOG_TAG << "Couldn't load property file";
         return;
     }
     data.push_back('\n');
     load_properties(&data[0], filter);
-    LOG(INFO) << "Loaded properties from " << filename << ".";
+    LOG(INFO) << LOG_TAG << "Loaded properties from " << filename << ".";
     return;
+}
+
+static bool file_exists(const char* file_name) {
+    std::ifstream ifile(file_name);
+    return ifile;
 }
 
 void vendor_load_properties() {
 
-    std::string LOG_TAG = "init_yoshino.cpp : ";
+    std::string prop_file = "/oem.prop"
 
     // Wait for up to 2 seconds for /oem to be ready before we proceed (it should take much less...)
     WaitForProperty("ro.boot.oem.ready", "true", 2s);
 
-    LOG(INFO) << LOG_TAG << "Loading region- and carrier-specific properties from /ocm.";
-
-    // Load the carrier-independent props
-    LOG(INFO) << LOG_TAG << "[Skipped] Loading properties from /ocm/system-properties/cust.prop";
+    // Loading props from specific file -> oem.prop
+    if (file_exists(prop_file)) {
+        LOG(INFO) << LOG_TAG << "File oem.prop exists.\nLoading region- and carrier-specific properties from oem.prop";
+        load_properties_from_file(prop_file, NULL);
+    } else {
+        LOG(INFO) << LOG_TAG << "Please create oem.prop file in root directory";
+    }
 }
