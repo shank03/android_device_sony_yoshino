@@ -93,7 +93,16 @@ static void load_properties(char *data, const char *filter)
                     if (strcmp(key, filter)) continue;
                 }
             }
-            property_set(key, value);
+            if (strcmp(key, "ro.build.description") == 0
+                || strcmp(key, "ro.build.version.incremental") == 0
+                || strcmp(key, "ro.build.tags") == 0
+                || strcmp(key, "ro.build.fingerprint") == 0
+                || strcmp(key, "ro.vendor.build.fingerprint") == 0
+                || strcmp(key, "ro.bootimage.build.fingerprint") == 0) {
+                LOG(INFO) << LOG_TAG << "Skipped prop - " << key;
+            } else {
+                property_set(key, value);
+            }
         }
     }
 }
@@ -111,22 +120,19 @@ static void load_properties_from_file(const char* filename, const char* filter) 
     return;
 }
 
-static bool file_exists(const char* file_name) {
-    std::ifstream ifile(file_name);
-    return ifile;
-}
-
 void vendor_load_properties() {
-
-    std::string prop_file = "/oem.prop"
 
     // Wait for up to 2 seconds for /oem to be ready before we proceed (it should take much less...)
     WaitForProperty("ro.boot.oem.ready", "true", 2s);
 
+    LOG(INFO) << LOG_TAG << "Loading region- and carrier-specific properties from ocm";
+    load_properties_from_file("/ocm/system-properties/cust.prop", NULL);
+    load_properties_from_file("/ocm/system-properties/config.prop", NULL);
+
     // Loading props from specific file -> oem.prop
-    if (file_exists(prop_file)) {
+    if (std::ifstream("/oem.prop")) {
         LOG(INFO) << LOG_TAG << "File oem.prop exists.\nLoading region- and carrier-specific properties from oem.prop";
-        load_properties_from_file(prop_file, NULL);
+        load_properties_from_file("/oem.prop", NULL);
     } else {
         LOG(INFO) << LOG_TAG << "Please create oem.prop file in root directory";
     }
