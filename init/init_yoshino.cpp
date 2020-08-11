@@ -127,7 +127,23 @@ void vendor_load_properties() {
 
     LOG(INFO) << LOG_TAG << "Loading region- and carrier-specific properties from ocm";
     load_properties_from_file("/ocm/system-properties/cust.prop", NULL);
-    load_properties_from_file("/ocm/system-properties/config.prop", NULL);
+
+    // Get the active customization id from miscTA
+    std::string cust_id = ta_get_cust_active();
+    // If no customization is set, load the basic set of config props.
+    if (cust_id.empty()) {
+        LOG(INFO) << LOG_TAG << "No active customization detected.";
+        LOG(INFO) << LOG_TAG << "Loading properties from /ocm/system-properties/config.prop";
+        load_properties_from_file("/ocm/system-properties/config.prop", NULL);
+    } else {
+    // Otherwise, load the carrier-specific ones (these also contain the basic ones).
+        LOG(INFO) << LOG_TAG << "Active customization detected: " << cust_id;
+        std::stringstream ss;
+        ss << "/ocm/system-properties/" << cust_id << "/config.prop";
+        std::string cust_path = ss.str();
+        LOG(INFO) << "Loading properties from " << cust_path;
+        load_properties_from_file(cust_path.c_str(), NULL);
+    }
 
     // Loading props from specific file -> oem.prop
     if (std::ifstream("/oem.prop")) {
