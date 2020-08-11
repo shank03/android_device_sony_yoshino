@@ -34,6 +34,8 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <chrono>
+#include <ctime>
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #define LOG_TAG "init_yoshino : "
@@ -55,7 +57,8 @@ using namespace std::chrono_literals;
 
 static void load_properties_from_file(const char *, const char *);
 
-static void log(std::stringstream msg, bool warn = false) {
+static bool first = true;
+static void log(const std::string &msg, bool warn = false) {
     if (warn) {
         PLOG(WARNING) << LOG_TAG << msg;
     } else {
@@ -64,8 +67,20 @@ static void log(std::stringstream msg, bool warn = false) {
 
     // write log to file
     ofstream logFile;
-    logFile.open("/ocm/oem.log", std::ios::app);
-    logFile << msg.str() << endl;
+    if (first) {
+        // overwrite file with new logs
+        logFile.open("/ocm/oem.log", std::ofstream::trunc);
+
+        // getting date & time
+        auto time = std::chrono::system_clock::now();
+        std::time_t f_time = std::chrono::system_clock::to_time_t(time);
+
+        logFile << "Created at " << std::ctime(&f_time) << endl;
+        first = false;
+    } else {
+        logFile.open("/ocm/oem.log", std::ofstream::app);
+    }
+    logFile << msg << endl;
     logFile.close();
 }
 
@@ -114,7 +129,7 @@ static void load_properties(char *data, const char *filter)
                 || strcmp(key, "ro.build.fingerprint") == 0
                 || strcmp(key, "ro.vendor.build.fingerprint") == 0
                 || strcmp(key, "ro.bootimage.build.fingerprint") == 0) {
-                log("Skipped prop - " << key);
+                log("Skipped prop - " + std::string(key));
             } else {
                 property_set(key, value);
             }
@@ -131,7 +146,7 @@ static void load_properties_from_file(const char* filename, const char* filter) 
     }
     data.push_back('\n');
     load_properties(&data[0], filter);
-    log("Loaded properties from " << filename << ".");
+    log("Loaded properties from " + std::string(filename) + ".");
     return;
 }
 
@@ -156,12 +171,12 @@ void vendor_load_properties() {
         std::stringstream ss;
         ss << "/ocm/system-properties/" << cust_id << "/config.prop";
         std::string cust_path = ss.str();
-        log("Loading properties from " << cust_path);
+        log("Loading properties from " + cust_path);
         load_properties_from_file(cust_path.c_str(), NULL);
     }
 
     // Loading props from specific file -> oem.prop
-    if (std::ifstream("/oem.prop")) {
+    if (std::ifstream("/ocm/oem.prop")) {
         log("File oem.prop exists.\nLoading region- and carrier-specific properties from oem.prop");
         load_properties_from_file("/oem.prop", NULL);
     } else {
