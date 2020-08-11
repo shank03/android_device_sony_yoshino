@@ -33,6 +33,7 @@
 #include <android-base/properties.h>
 #include <sstream>
 #include <fstream>
+#include <iostream>
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #define LOG_TAG "init_yoshino : "
@@ -53,6 +54,20 @@ using android::init::property_set;
 using namespace std::chrono_literals;
 
 static void load_properties_from_file(const char *, const char *);
+
+static void log(std::stringstream msg, bool warn = false) {
+    if (warn) {
+        PLOG(WARNING) << LOG_TAG << msg;
+    } else {
+        LOG(INFO) << LOG_TAG << msg;
+    }
+
+    // write log to file
+    ofstream logFile;
+    logFile.open("/ocm/oem.log", std::ios::app);
+    logFile << msg.str() << endl;
+    logFile.close();
+}
 
 static void load_properties(char *data, const char *filter)
 {
@@ -99,7 +114,7 @@ static void load_properties(char *data, const char *filter)
                 || strcmp(key, "ro.build.fingerprint") == 0
                 || strcmp(key, "ro.vendor.build.fingerprint") == 0
                 || strcmp(key, "ro.bootimage.build.fingerprint") == 0) {
-                LOG(INFO) << LOG_TAG << "Skipped prop - " << key;
+                log("Skipped prop - " << key);
             } else {
                 property_set(key, value);
             }
@@ -111,12 +126,12 @@ static void load_properties_from_file(const char* filename, const char* filter) 
     std::string data;
 
     if (!ReadFileToString(filename, &data)) {
-        PLOG(WARNING) << LOG_TAG << "Couldn't load property file";
+        log("Couldn't load property file", true);
         return;
     }
     data.push_back('\n');
     load_properties(&data[0], filter);
-    LOG(INFO) << LOG_TAG << "Loaded properties from " << filename << ".";
+    log("Loaded properties from " << filename << ".");
     return;
 }
 
@@ -125,31 +140,31 @@ void vendor_load_properties() {
     // Wait for up to 2 seconds for /oem to be ready before we proceed (it should take much less...)
     WaitForProperty("ro.boot.oem.ready", "true", 2s);
 
-    LOG(INFO) << LOG_TAG << "Loading region- and carrier-specific properties from ocm";
+    log("Loading region- and carrier-specific properties from ocm");
     load_properties_from_file("/ocm/system-properties/cust.prop", NULL);
 
     // Get the active customization id from miscTA
     std::string cust_id = ta_get_cust_active();
     // If no customization is set, load the basic set of config props.
     if (cust_id.empty()) {
-        LOG(INFO) << LOG_TAG << "No active customization detected.";
-        LOG(INFO) << LOG_TAG << "Loading properties from /ocm/system-properties/config.prop";
+        log("No active customization detected.");
+        log("Loading properties from /ocm/system-properties/config.prop");
         load_properties_from_file("/ocm/system-properties/config.prop", NULL);
     } else {
-    // Otherwise, load the carrier-specific ones (these also contain the basic ones).
-        LOG(INFO) << LOG_TAG << "Active customization detected: " << cust_id;
+        // Otherwise, load the carrier-specific ones (these also contain the basic ones).
+        log("Active customization detected: " << cust_id);
         std::stringstream ss;
         ss << "/ocm/system-properties/" << cust_id << "/config.prop";
         std::string cust_path = ss.str();
-        LOG(INFO) << "Loading properties from " << cust_path;
+        log("Loading properties from " << cust_path);
         load_properties_from_file(cust_path.c_str(), NULL);
     }
 
     // Loading props from specific file -> oem.prop
     if (std::ifstream("/oem.prop")) {
-        LOG(INFO) << LOG_TAG << "File oem.prop exists.\nLoading region- and carrier-specific properties from oem.prop";
+        log("File oem.prop exists.\nLoading region- and carrier-specific properties from oem.prop");
         load_properties_from_file("/oem.prop", NULL);
     } else {
-        LOG(INFO) << LOG_TAG << "Please create oem.prop file in root directory";
+        log("Please create oem.prop file in root directory");
     }
 }
