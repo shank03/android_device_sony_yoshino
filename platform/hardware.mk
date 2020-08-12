@@ -74,6 +74,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     CustomizationSelector
 
+# PERFD (DUMMY)
+PRODUCT_PACKAGES += \
+    libqti-perfd-client
+
 ### REMOVE UNWANTED PACKAGES
 PRODUCT_PACKAGES += \
     RemovePackages
