@@ -177,9 +177,9 @@ void vendor_load_properties() {
 
     // Loading props from specific file -> oem.prop
     if (std::ifstream("/ocm/oem.prop")) {
-        log("File oem.prop exists.\nLoading region- and carrier-specific properties from oem.prop");
-        load_properties_from_file("/oem.prop", NULL);
+        log("File oem.prop exists.\nLoading properties from oem.prop");
+        load_properties_from_file("/ocm/oem.prop", NULL);
     } else {
-        log("Please create oem.prop file in root directory");
+        log("Please put oem.prop file in /oem directory");
     }
 }
