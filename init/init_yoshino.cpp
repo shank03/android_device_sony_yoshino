@@ -66,7 +66,7 @@ static void log(const std::string &msg, bool warn = false) {
     }
 
     // write log to file
-    ofstream logFile;
+    std::ofstream logFile;
     if (first) {
         // overwrite file with new logs
         logFile.open("/ocm/oem.log", std::ofstream::trunc);
@@ -75,12 +75,12 @@ static void log(const std::string &msg, bool warn = false) {
         auto time = std::chrono::system_clock::now();
         std::time_t f_time = std::chrono::system_clock::to_time_t(time);
 
-        logFile << "Created at " << std::ctime(&f_time) << endl;
+        logFile << "Created at " << std::ctime(&f_time) << std::endl;
         first = false;
     } else {
         logFile.open("/ocm/oem.log", std::ofstream::app);
     }
-    logFile << msg << endl;
+    logFile << msg << std::endl;
     logFile.close();
 }
 
@@ -168,7 +168,7 @@ void vendor_load_properties() {
         load_properties_from_file("/ocm/system-properties/config.prop", NULL);
     } else {
         // Otherwise, load the carrier-specific ones (these also contain the basic ones).
-        log("Active customization detected: " << cust_id);
+        log("Active customization detected: " + cust_id);
         std::stringstream ss;
         ss << "/ocm/system-properties/" << cust_id << "/config.prop";
         std::string cust_path = ss.str();
