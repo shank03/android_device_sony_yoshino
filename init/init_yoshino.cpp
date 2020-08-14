@@ -129,8 +129,9 @@ static void load_properties(char *data, const char *filter)
                 || strcmp(key, "ro.build.fingerprint") == 0
                 || strcmp(key, "ro.vendor.build.fingerprint") == 0
                 || strcmp(key, "ro.bootimage.build.fingerprint") == 0) {
-                log("Skipped prop - " + std::string(key));
+                log("Skipped prop: " + std::string(key));
             } else {
+                log("Load prop: " + std::string(key));
                 property_set(key, value);
             }
         }
