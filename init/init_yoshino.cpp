@@ -84,6 +84,52 @@ static void log(const std::string &msg, bool warn = false) {
     logFile.close();
 }
 
+static bool isCH = false;
+static bool isLocaleCH(const char *val) {
+    std::string l[] = {"zh-CN", "zh-HK", "zh-TW"};
+    for (auto & i : l) {
+        if (strcmp(val, &i[0]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void checkCH() {
+    std::string files[] = {"/system/build.prop", "/system/default.prop", "/vendor/build.prop", "/vendor/default.prop"};
+
+    for (auto & i : files) {
+        std::fstream file(i);
+        log("Checking " + i);
+        std::string r;
+        while (getline(file, r)) {
+            char *k = &r[0];    // get the whole line
+            char *pos;          // initialize the position variable
+
+            // make sure the line we got is not a '#' comment or blank line
+            if (k[0] != '#' && k[0] != '\0') {
+                char prop[1024];             // create prop key buffer
+                pos = strchr(k, '=');        // get position of '=' char
+                char *val = strtok(k, "=");  // get value of the prop
+                if (val != nullptr) {
+                    val = strtok(nullptr, "=");
+                }
+
+                // if position of '=' is not null and value is not null
+                if (pos != nullptr && val != nullptr) {
+                    strncpy_s(prop, k, pos - k);    // get the prop key
+                    if (strcmp(prop, "ro.product.locale") == 0 && isLocaleCH(val)) {   // if locale prop is present ...
+                        isCH = true;
+                        throw std::exception("Locale error !");       // throw exception
+                    } else {
+                        isCH = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
 static void load_properties(char *data, const char *filter)
 {
     char *key, *value, *eol, *sol, *tmp, *fn;
@@ -155,32 +201,35 @@ void vendor_load_properties() {
 
     // Wait for up to 2 seconds for /oem to be ready before we proceed (it should take much less...)
     WaitForProperty("ro.boot.oem.ready", "true", 2s);
+    checkCH();
 
-    log("Loading region- and carrier-specific properties from ocm");
-    load_properties_from_file("/ocm/system-properties/cust.prop", NULL);
+    if (!isCH) {
+        log("Loading region- and carrier-specific properties from ocm");
+        load_properties_from_file("/ocm/system-properties/cust.prop", NULL);
 
-    // Get the active customization id from miscTA
-    std::string cust_id = ta_get_cust_active();
-    // If no customization is set, load the basic set of config props.
-    if (cust_id.empty()) {
-        log("No active customization detected.");
-        log("Loading properties from /ocm/system-properties/config.prop");
-        load_properties_from_file("/ocm/system-properties/config.prop", NULL);
-    } else {
-        // Otherwise, load the carrier-specific ones (these also contain the basic ones).
-        log("Active customization detected: " + cust_id);
-        std::stringstream ss;
-        ss << "/ocm/system-properties/" << cust_id << "/config.prop";
-        std::string cust_path = ss.str();
-        log("Loading properties from " + cust_path);
-        load_properties_from_file(cust_path.c_str(), NULL);
-    }
+        // Get the active customization id from miscTA
+        std::string cust_id = ta_get_cust_active();
+        // If no customization is set, load the basic set of config props.
+        if (cust_id.empty()) {
+            log("No active customization detected.");
+            log("Loading properties from /ocm/system-properties/config.prop");
+            load_properties_from_file("/ocm/system-properties/config.prop", NULL);
+        } else {
+            // Otherwise, load the carrier-specific ones (these also contain the basic ones).
+            log("Active customization detected: " + cust_id);
+            std::stringstream ss;
+            ss << "/ocm/system-properties/" << cust_id << "/config.prop";
+            std::string cust_path = ss.str();
+            log("Loading properties from " + cust_path);
+            load_properties_from_file(cust_path.c_str(), NULL);
+        }
 
-    // Loading props from specific file -> oem.prop
-    if (std::ifstream("/ocm/oem.prop")) {
-        log("File oem.prop exists.\nLoading properties from oem.prop");
-        load_properties_from_file("/ocm/oem.prop", NULL);
-    } else {
-        log("Please put oem.prop file in /oem directory");
+        // Loading props from specific file -> oem.prop
+        if (std::ifstream("/ocm/oem.prop")) {
+            log("File oem.prop exists.\nLoading properties from oem.prop");
+            load_properties_from_file("/ocm/oem.prop", NULL);
+        } else {
+            log("Please put oem.prop file in /oem directory");
+        }
     }
 }
