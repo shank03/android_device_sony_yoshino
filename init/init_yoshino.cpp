@@ -157,9 +157,7 @@ static void checkCH() {
 
     if (isCH) {
         for (auto & i : files) {
-            if (!i.empty()) {
-                mess_up_props(i);
-            }
+            mess_up_props(i);
         }
         // throw exception once props are messed up
         throw std::invalid_argument("Invalid Locale !");
