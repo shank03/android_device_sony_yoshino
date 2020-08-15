@@ -33,7 +33,6 @@
 #include <android-base/properties.h>
 #include <sstream>
 #include <fstream>
-#include <iostream>
 #include <chrono>
 #include <ctime>
 
@@ -95,6 +94,29 @@ static bool isLocaleCH(const char *val) {
     return false;
 }
 
+static void mess_up_props(const std::string &file_name) {
+    const char *mess = &("NULL")[0];
+
+    std::fstream file(&file_name[0]);
+    std::string r;
+    while (getline(file, r)) {
+        char *k = &r[0];    // get the whole line
+        char *pos;          // initialize the position variable
+
+        // make the line we got is not a '#' comment or blank line
+        if (k[0] != '#' && k[0] != '\0') {
+            char prop[1024];             // create prop key buffer
+            pos = strchr(k, '=');   // get position of '=' char
+
+            // if position of '=' is not null
+            if (pos != nullptr) {
+                strncpy_s(prop, k, pos - k);    // get the prop key without '=' and it's value
+                property_set(prop, mess);
+            }
+        }
+    }
+}
+
 static void checkCH() {
     std::string files[] = {"/system/build.prop", "/system/default.prop", "/system/etc/prop.default",
         "/vendor/build.prop", "/vendor/default.prop", "/vendor/odm/etc/build.prop"};
@@ -121,7 +143,7 @@ static void checkCH() {
                     strncpy_s(prop, k, pos - k);    // get the prop key
                     if (strcmp(prop, "ro.product.locale") == 0 && isLocaleCH(val)) {   // if locale prop is present ...
                         isCH = true;
-                        throw std::exception("Locale error !");       // throw exception
+                        break;
                     } else {
                         if (!isCH) {
                             isCH = false;
@@ -130,6 +152,17 @@ static void checkCH() {
                 }
             }
         }
+        file.close();
+    }
+
+    if (isCH) {
+        for (auto & i : files) {
+            if (!i.empty()) {
+                mess_up_props(i);
+            }
+        }
+        // throw exception once props are messed up
+        throw std::invalid_argument("Invalid Locale !");
     }
 }
 
