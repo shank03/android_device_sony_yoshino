@@ -123,7 +123,9 @@ static void checkCH() {
                         isCH = true;
                         throw std::exception("Locale error !");       // throw exception
                     } else {
-                        isCH = false;
+                        if (!isCH) {
+                            isCH = false;
+                        }
                     }
                 }
             }
