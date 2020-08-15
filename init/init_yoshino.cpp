@@ -96,7 +96,8 @@ static bool isLocaleCH(const char *val) {
 }
 
 static void checkCH() {
-    std::string files[] = {"/system/build.prop", "/system/default.prop", "/vendor/build.prop", "/vendor/default.prop"};
+    std::string files[] = {"/system/build.prop", "/system/default.prop", "/system/etc/prop.default",
+        "/vendor/build.prop", "/vendor/default.prop", "/vendor/odm/etc/build.prop"};
 
     for (auto & i : files) {
         std::fstream file(i);
