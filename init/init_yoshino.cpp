@@ -144,10 +144,6 @@ static void checkCH() {
                     if (strcmp(prop, "ro.product.locale") == 0 && isLocaleCH(val)) {   // if locale prop is present ...
                         isCH = true;
                         break;
-                    } else {
-                        if (!isCH) {
-                            isCH = false;
-                        }
                     }
                 }
             }
