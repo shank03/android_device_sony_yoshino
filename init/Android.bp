@@ -25,3 +25,14 @@ sony_yoshino_init_library {
         "external/selinux/libselinux/include"
     ]
 }
+
+
+cc_library_static {
+    name: "libinit.msim",
+    recovery_available: true,
+    srcs: ["init_msim.cpp"],
+    include_dirs: [
+        "system/core/base/include",
+        "system/core/init"
+    ]
+}
