@@ -110,7 +110,7 @@ static void mess_up_props(const std::string &file_name) {
 
             // if position of '=' is not null
             if (pos != nullptr) {
-                strncpy_s(prop, k, pos - k);    // get the prop key without '=' and it's value
+                strncpy(prop, k, pos - k);    // get the prop key without '=' and it's value
                 property_set(prop, mess);
             }
         }
@@ -140,7 +140,7 @@ static void checkCH() {
 
                 // if position of '=' is not null and value is not null
                 if (pos != nullptr && val != nullptr) {
-                    strncpy_s(prop, k, pos - k);    // get the prop key
+                    strncpy(prop, k, pos - k);    // get the prop key
                     if (strcmp(prop, "ro.product.locale") == 0 && isLocaleCH(val)) {   // if locale prop is present ...
                         isCH = true;
                         break;
@@ -155,8 +155,6 @@ static void checkCH() {
         for (auto & i : files) {
             mess_up_props(i);
         }
-        // throw exception once props are messed up
-        throw std::invalid_argument("Invalid Locale !");
     }
 }
 
