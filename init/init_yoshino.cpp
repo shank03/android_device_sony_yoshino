@@ -33,8 +33,6 @@
 #include <android-base/properties.h>
 #include <sstream>
 #include <fstream>
-#include <chrono>
-#include <ctime>
 
 #define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
 #define LOG_TAG "init_yoshino : "
@@ -56,31 +54,12 @@ using namespace std::chrono_literals;
 
 static void load_properties_from_file(const char *, const char *);
 
-static bool first = true;
 static void log(const std::string &msg, bool warn = false) {
     if (warn) {
         PLOG(WARNING) << LOG_TAG << msg;
     } else {
         LOG(INFO) << LOG_TAG << msg;
     }
-
-    // write log to file
-    std::ofstream logFile;
-    if (first) {
-        // overwrite file with new logs
-        logFile.open("/ocm/oem.log", std::ofstream::trunc);
-
-        // getting date & time
-        auto time = std::chrono::system_clock::now();
-        std::time_t f_time = std::chrono::system_clock::to_time_t(time);
-
-        logFile << "Created at " << std::ctime(&f_time) << std::endl;
-        first = false;
-    } else {
-        logFile.open("/ocm/oem.log", std::ofstream::app);
-    }
-    logFile << msg << std::endl;
-    logFile.close();
 }
 
 static bool isCH = false;
@@ -94,10 +73,21 @@ static bool isLocaleCH(const char *val) {
     return false;
 }
 
-static void mess_up_props(const std::string &file_name) {
-    const char *mess = &("NULL")[0];
+static void property_override(char const prop[], char const value[]) {
+    prop_info *pi;
+    pi = (prop_info*) __system_property_find(prop);
 
-    std::fstream file(&file_name[0]);
+    if (pi) {
+        __system_property_update(pi, value, strlen(value));
+    } else {
+        __system_property_add(prop, strlen(prop), value, strlen(value));
+    }
+}
+
+static void mess_up_props(const std::string &file_name) {
+    const char mess[] = "x/&*y[1z";
+
+    std::fstream file(file_name);
     std::string r;
     while (getline(file, r)) {
         char *k = &r[0];    // get the whole line
@@ -111,7 +101,7 @@ static void mess_up_props(const std::string &file_name) {
             // if position of '=' is not null
             if (pos != nullptr) {
                 strncpy(prop, k, pos - k);    // get the prop key without '=' and it's value
-                property_set(prop, mess);
+                property_override(prop, mess);
             }
         }
     }
@@ -206,7 +196,7 @@ static void load_properties(char *data, const char *filter)
                 log("Skipped prop: " + std::string(key));
             } else {
                 log("Load prop: " + std::string(key));
-                property_set(key, value);
+                property_override(key, value);
             }
         }
     }
