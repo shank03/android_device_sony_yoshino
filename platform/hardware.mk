@@ -179,6 +179,10 @@ PRODUCT_PACKAGES += \
     wpa_supplicant \
     wpa_supplicant.conf
 
+### TETHERING
+PRODUCT_PACKAGES += \
+    TetheringConfigOverlay
+
 # USB
 PRODUCT_PACKAGES += \
     android.hardware.usb@1.0 \
