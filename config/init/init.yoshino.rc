@@ -423,6 +423,12 @@ service wpa_supplicant /vendor/bin/hw/wpa_supplicant \
     disabled
     oneshot
 
+# QMI DPM
+service dpmQmiMgr /system/vendor/bin/dpmQmiMgr
+    class main
+    user system
+    group system
+
 service modem_switcher /system/bin/sony-modem-switcher
     class main
     user root
