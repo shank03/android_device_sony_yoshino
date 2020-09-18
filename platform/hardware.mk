@@ -158,10 +158,7 @@ PRODUCT_PACKAGES += \
 
 # THERMAL
 PRODUCT_PACKAGES += \
-    thermal.msm8998 \
-    android.hardware.thermal@1.0-impl \
-    android.hardware.thermal@1.1-impl \
-    android.hardware.thermal@1.0-service
+    thermal.msm8998
 
 # VR
 PRODUCT_PACKAGES += \
