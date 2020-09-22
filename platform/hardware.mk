@@ -57,3 +57,7 @@ PRODUCT_PACKAGES += \
 # NetworkSwitcher
 PRODUCT_PACKAGES += \
     NetworkSwitcher
+
+# ChargerImpl
+PRODUCT_PACKAGES += \
+    ChargerImpl
