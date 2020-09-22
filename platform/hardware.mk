@@ -53,3 +53,7 @@ PRODUCT_PACKAGES += \
 # COVER
 PRODUCT_PACKAGES += \
     FlipFlap
+
+# NetworkSwitcher
+PRODUCT_PACKAGES += \
+    NetworkSwitcher
