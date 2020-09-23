@@ -27,7 +27,7 @@ class BootReceiver : BroadcastReceiver() {
         context ?: return
 
         if (action == Intent.ACTION_BOOT_COMPLETED || action == "android.intent.action.QUICKBOOT_POWERON") {
-            context.startServiceAsUser(Intent(context, Charger::class.java), UserHandle.CURRENT_USER)
+            context.startServiceAsUser(Intent(context, Charger::class.java), UserHandle.CURRENT)
         }
     }
 }
