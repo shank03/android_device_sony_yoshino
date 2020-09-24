@@ -21,8 +21,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.icu.text.SimpleDateFormat;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.telephony.CellSignalStrength;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -34,7 +37,9 @@ import androidx.core.app.ActivityCompat;
 import com.android.internal.telephony.RILConstants;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Service to handle Network mode
@@ -56,12 +61,14 @@ public class NetworkSwitcher extends Service {
         return null;
     }
 
+    SubscriptionManager sm;
+
     // Global variable to be accessed on shutdown
     int mSubID = -99;
 
     /**
-     * The {@link SubscriptionManager#addOnSubscriptionsChangedListener(SubscriptionManager.OnSubscriptionsChangedListener)}
-     * maybe called many times and every time network mode changes.
+     * The {@link #subscriptionsChangedListener} is called every time something changes
+     * in SIM connectivity.
      * <p>
      * This boolean will make sure that the network toggle takes place only once.
      */
@@ -76,18 +83,56 @@ public class NetworkSwitcher extends Service {
      */
     boolean wasModemDone = true;
 
+    /**
+     * Broadcast receiver to perform network toggle on shutdown/reboot
+     */
     private BroadcastReceiver shutDownReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action != null) {
                 if (action.equals(Intent.ACTION_SHUTDOWN) || action.equals(Intent.ACTION_REBOOT)) {
-                    Log.d(TAG, "onReceive: Action received: " + action);
+                    d("onReceive: Action received: " + action);
                     if (mSubID == -99) {
-                        Log.d(TAG, "onReceive: Could not perform network switch; mSubID = " + mSubID);
+                        d("onReceive: Could not perform network switch; mSubID = " + mSubID);
                         return;
                     }
-                    performIntendedTask(mSubID, false);
+                    task(mSubID, false);
+                }
+            }
+        }
+    };
+
+    private SubscriptionManager.OnSubscriptionsChangedListener subscriptionsChangedListener = new SubscriptionManager.OnSubscriptionsChangedListener() {
+        @Override
+        public void onSubscriptionsChanged() {
+            d("onSubscriptionsChanged: Called");
+            super.onSubscriptionsChanged();
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                d(Manifest.permission.READ_PHONE_STATE + " was denied.");
+                return;
+            }
+
+            if (!changedOnBoot) {
+                if (isAirplaneModeOn()) {
+                    d("onSubscriptionsChanged: Airplane mode was ON. Waiting ...");
+                    return;
+                }
+
+                List<SubscriptionInfo> list = sm.getActiveSubscriptionInfoList();
+                d("onSubscriptionsChanged: list size " + list.size());
+
+                if (list.size() >= 1) {
+                    // TODO: dual sim
+                    mSubID = list.get(0).getSubscriptionId();
+
+                    // Delay 1 sec, not to immediately react
+                    new Handler(getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            task(mSubID, true);
+                        }
+                    }, 1000);
                 }
             }
         }
@@ -95,44 +140,16 @@ public class NetworkSwitcher extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "Service started");
-        final SubscriptionManager sm = getSystemService(SubscriptionManager.class);
-        sm.addOnSubscriptionsChangedListener(new SubscriptionManager.OnSubscriptionsChangedListener() {
-            @Override
-            public void onSubscriptionsChanged() {
-                Log.d(TAG, "onSubscriptionsChanged: Called");
-                super.onSubscriptionsChanged();
-                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, Manifest.permission.READ_PHONE_STATE + " was denied.");
-                    return;
-                }
-
-                if (isAirplaneModeOn()) {
-                    Log.d(TAG, "onSubscriptionsChanged: Airplane mode was ON. Waiting for it to be turned off");
-                    return;
-                }
-
-                if (!changedOnBoot) {
-                    List<SubscriptionInfo> list = sm.getActiveSubscriptionInfoList();
-                    Log.d(TAG, "onSubscriptionsChanged: list size " + list.size());
-
-                    if (list.size() >= 1) {
-                        // TODO: dual sim
-                        int subID = list.get(0).getSubscriptionId();
-                        mSubID = subID;     // Storing it to be accessible on shutdown
-                        performIntendedTask(subID, true);
-
-                        changedOnBoot = true;
-                    }
-                }
-            }
-        });
+        d("Service started");
+        sm = getSystemService(SubscriptionManager.class);
+        sm.addOnSubscriptionsChangedListener(subscriptionsChangedListener);
 
         // Register shutdown/reboot receiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SHUTDOWN);
         filter.addAction(Intent.ACTION_REBOOT);
         registerReceiver(shutDownReceiver, filter);
+
         super.onCreate();
     }
 
@@ -141,9 +158,12 @@ public class NetworkSwitcher extends Service {
         return START_STICKY;
     }
 
-    private void performIntendedTask(int subID, boolean isBoot) {
+    /**
+     * This method prepares and performs some important checks before {@link #toggle(TelephonyManager, int, int)}
+     */
+    private void task(int subID, boolean isBoot) {
         if (!wasModemCSWorkCompleted()) {
-            Log.d(TAG, "performIntendedTask: Modem Work was not completed. Skipping Toggle task");
+            d("task: Modem Work was not completed. Skipping Toggle task");
             wasModemDone = false;
             return;
         }
@@ -151,49 +171,63 @@ public class NetworkSwitcher extends Service {
         TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
 
         int currentNetwork = getPreferredNetwork(subID);
-        Log.d(TAG, "performIntendedTask: Current network = " + logPrefNetwork(currentNetwork));
+        d("task: Current network = " + logPrefNetwork(currentNetwork));
 
         // Continue the toggle task
         if (isBoot) {
-            Log.d(TAG, "performIntendedTask: Boot task");
+            d("task: Boot task");
+
+            if (tm.getSignalStrength() == null ||
+                    tm.getSignalStrength().getLevel() == CellSignalStrength.SIGNAL_STRENGTH_NONE_OR_UNKNOWN) {
+                d("task: SIM not in service. Waiting ...");
+                return;
+            }
 
             if (Preference.getWasNetwork3G(getApplicationContext(), !isLTE(currentNetwork))) {
-                Log.d(TAG, "performIntendedTask: User pref was 3G Not toggling");
+                d("task: User pref was 3G; Not toggling");
             } else {
-                Log.d(TAG, "performIntendedTask: User pref was LTE; Toggling ...");
+                d("task: User pref was LTE; Toggling ...");
                 toggle(tm, subID, currentNetwork);
             }
+            changedOnBoot = true;
         } else {
-            Log.d(TAG, "performIntendedTask: Shutdown/reboot task");
+            d("task: Shutdown/reboot task");
 
             if (wasModemDone) {
                 boolean lte = isLTE(currentNetwork);
                 if (lte) {
-                    Log.d(TAG, "performIntendedTask: Current network is LTE; Toggling ...");
+                    d("task: Current network is LTE; Toggling ...");
                     toggle(tm, subID, currentNetwork);
                 } else {
-                    Log.d(TAG, "performIntendedTask: Current network was NOT LTE");
+                    d("task: Current network was NOT LTE; Not toggling");
                 }
                 Preference.putWasNetwork3G(!lte, getApplicationContext());
             } else {
-                Log.d(TAG, "performIntendedTask: Modem task was incomplete when checked on boot, skipping ...");
+                d("task: Modem task was incomplete when checked on boot, skipping ...");
             }
         }
     }
 
+    /**
+     * The method to toggle the network
+     *
+     * @param tm             {@link TelephonyManager} specific to subID
+     * @param subID          the subscription ID from {@link #subscriptionsChangedListener}
+     * @param currentNetwork current preferred network mode from {@link #task(int, boolean)}
+     */
     private void toggle(TelephonyManager tm, int subID, int currentNetwork) {
         int networkToChange = getToggledNetwork(currentNetwork);
-        Log.d(TAG, "toggle: To be changed to = " + logPrefNetwork(networkToChange));
+        d("toggle: To be changed to = " + logPrefNetwork(networkToChange));
 
         if (networkToChange == -99) {
-            Log.d(TAG, "toggle: Couldn't get proper network to change");
+            d("toggle: Couldn't get proper network to change");
             return;
         }
 
         if (tm.setPreferredNetworkType(subID, networkToChange)) {
             Settings.Global.putInt(getApplicationContext().getContentResolver(),
                     Settings.Global.PREFERRED_NETWORK_MODE + subID, networkToChange);
-            Log.d(TAG, "toggle: Successfully changed to " + logPrefNetwork(networkToChange));
+            d("toggle: Successfully changed to " + logPrefNetwork(networkToChange));
         }
     }
 
@@ -310,5 +344,28 @@ public class NetworkSwitcher extends Service {
     private boolean isAirplaneModeOn() {
         return Settings.System.getInt(getApplicationContext().getContentResolver(),
                 Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+    }
+
+    /**
+     * Write logs
+     * <p>
+     * Dir: /data/data/com.yoshino.networkswitcher/files/ns.log
+     */
+    private void d(String msg) {
+        Log.d(TAG, msg);
+
+        File logFile = new File(getFilesDir(), "ns.log");
+        try {
+            String log = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS", Locale.getDefault())
+                    .format(System.currentTimeMillis()) + TAG + ": " + msg + " \r\n";
+
+            FileOutputStream fos = getApplicationContext().openFileOutput("ns.log",
+                    logFile.exists() ? Context.MODE_APPEND : Context.MODE_PRIVATE);
+
+            fos.write(log.getBytes());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
