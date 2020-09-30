@@ -117,7 +117,6 @@ public class NetworkSwitcher extends Service {
     private SubscriptionManager.OnSubscriptionsChangedListener subscriptionsChangedListener = new SubscriptionManager.OnSubscriptionsChangedListener() {
         @Override
         public void onSubscriptionsChanged() {
-            d("onSubscriptionsChanged: Called");
             super.onSubscriptionsChanged();
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                 d(Manifest.permission.READ_PHONE_STATE + " was denied.");
@@ -174,7 +173,7 @@ public class NetworkSwitcher extends Service {
     /**
      * This method prepares and performs some important checks before {@link #toggle(TelephonyManager, int, int)}
      */
-    private void task(int subID, boolean isBoot) {
+    private void task(final int subID, boolean isBoot) {
         if (subID == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
             d("task: Cannot continue. Subscription ID is invalid; " + subID);
             delayedTaskCompleted = true;
@@ -187,9 +186,9 @@ public class NetworkSwitcher extends Service {
             return;
         }
 
-        TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
-        PersistableBundle carrierConfig = getSystemService(CarrierConfigManager.class).getConfigForSubId(subID);
-        ImsManager imsManager = ImsManager.getInstance(getApplicationContext(), SubscriptionManager.getPhoneId(subID));
+        final TelephonyManager tm = getSystemService(TelephonyManager.class).createForSubscriptionId(subID);
+        final PersistableBundle carrierConfig = getSystemService(CarrierConfigManager.class).getConfigForSubId(subID);
+        final ImsManager imsManager = ImsManager.getInstance(getApplicationContext(), SubscriptionManager.getPhoneId(subID));
 
         int currentNetwork = getPreferredNetwork(subID);
         d("task: Current network = " + logPrefNetwork(currentNetwork) + "; " + currentNetwork);
@@ -205,12 +204,28 @@ public class NetworkSwitcher extends Service {
                 return;
             }
 
-            if (Preference.getWasNetwork3G(getApplicationContext(), !isLTE(currentNetwork))) {
-                d("task: User pref was 3G; Not toggling");
-            } else {
-                d("task: User pref was LTE; Toggling ...");
+            if (isLTE(currentNetwork)) {
+                d("task: Current network is ALREADY LTE, toggling ...");
+                // Toggle to 3G
                 toggle(tm, subID, currentNetwork);
-                handle4GVoLteToggle(tm, imsManager, carrierConfig, subID, true);
+                new Handler(getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Toggle back to LTE after 2 sec ...
+                        toggle(tm, subID, getPreferredNetwork(subID));
+                        // Then handle VoLTE preference
+                        handle4GVoLteToggle(tm, imsManager, carrierConfig, subID, true);
+                    }
+                }, 2000);
+            } else {
+                d("task: Current network was expectedly 3G.");
+                if (Preference.getWasNetwork3G(getApplicationContext(), !isLTE(currentNetwork))) {
+                    d("task: User pref was 3G; Not toggling");
+                } else {
+                    d("task: User pref was LTE; Toggling ...");
+                    toggle(tm, subID, currentNetwork);
+                    handle4GVoLteToggle(tm, imsManager, carrierConfig, subID, true);
+                }
             }
             changedOnBoot = true;
         } else {
