@@ -140,6 +140,7 @@ public class NetworkSwitcher extends Service {
             if (!changedOnBoot && delayedTaskCompleted) {
                 if (isAirplaneModeOn()) {
                     d("onSubscriptionsChanged: Airplane mode was ON. Waiting ...");
+                    helper.getManager().notify(1, helper.getToggleNotification("Airplane mode is ON. Waiting ..."));
                     return;
                 }
 
@@ -179,7 +180,7 @@ public class NetworkSwitcher extends Service {
         filter.addAction(Intent.ACTION_REBOOT);
         registerReceiver(shutDownReceiver, filter);
 
-        helper.getManager().notify(1, helper.getToggleNotification());
+        helper.getManager().notify(1, helper.getToggleNotification("IMS registration in progress ..."));
 
         super.onCreate();
     }
@@ -252,6 +253,7 @@ public class NetworkSwitcher extends Service {
             if (tm.getSignalStrength() == null ||
                     tm.getSignalStrength().getLevel() == CellSignalStrength.SIGNAL_STRENGTH_NONE_OR_UNKNOWN) {
                 d("task: SIM not in service. Waiting ...");
+                helper.getManager().notify(1, helper.getToggleNotification("SIM not in service. Waiting ..."));
                 delayedTaskCompleted = true;
                 return;
             }
