@@ -51,10 +51,10 @@ public class NotificationHelper {
         return manager;
     }
 
-    public Notification getToggleNotification() {
+    public Notification getToggleNotification(String msg) {
         return new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle(CHANNEL_ID)
-                .setContentText("IMS registration in progress ...")
+                .setContentText(msg)
                 .setSmallIcon(R.drawable.ic_baseline_sim_card_24)
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
