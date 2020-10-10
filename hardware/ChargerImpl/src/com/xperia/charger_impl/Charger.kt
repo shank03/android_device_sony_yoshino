@@ -15,8 +15,12 @@
 package com.xperia.charger_impl
 
 import android.app.Service
-import android.content.*
-import android.os.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
+import android.os.IBinder
 import android.util.Log
 
 class Charger : Service() {
@@ -29,45 +33,52 @@ class Charger : Service() {
 
     /**
      * A simple receiver that
-     * [enableCharging] when battery is less than 100 and
-     * [disableCharging] when fully charged.
+     * - [enableCharging] when battery is less than 100
+     * - [enableCharging] when reboot/shutdown
+     * - [disableCharging] when fully charged.
      */
-    private val batteryStatsReceiver = object : BroadcastReceiver() {
+    private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             action ?: return
 
-            if (action == Intent.ACTION_BATTERY_CHANGED) {
-                val batPct = intent.let {
-                    val level = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-                    val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-                    level * 100 / scale.toFloat()
+            when (action) {
+                Intent.ACTION_BATTERY_CHANGED -> {
+                    val batPct = intent.let {
+                        val level = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                        val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                        level * 100 / scale.toFloat()
+                    }
+
+                    if (batPct == 100F) {
+                        Log.d(TAG, "onReceive: Battery full")
+
+                        // Send broadcast to stop battery care in-case it's running
+                        //sendBroadcast(Intent().setAction("$packageName.$STOP_BATTERY_CARE")
+                        //        .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+                        //        .setComponent(ComponentName(SEND_PKG, "$SEND_PKG.receiver.StopBatteryCare")))
+
+                        disableCharging(mainLooper)
+                    } else enableCharging()
                 }
-
-                if (batPct == 100F) {
-                    Log.d(TAG, "onReceive: Battery full")
-
-                    // Send broadcast to stop battery care in-case it's running
-                    //sendBroadcast(Intent().setAction("$packageName.$STOP_BATTERY_CARE")
-                    //        .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
-                    //        .setComponent(ComponentName(SEND_PKG, "$SEND_PKG.receiver.StopBatteryCare")))
-
-                    disableCharging(mainLooper)
-                } else enableCharging()
+                Intent.ACTION_SHUTDOWN, Intent.ACTION_REBOOT -> enableCharging()
             }
         }
     }
 
     override fun onCreate() {
         Log.d(TAG, "onCreate: Service started")
-        registerReceiver(batteryStatsReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED).apply {
+            addAction(Intent.ACTION_REBOOT)
+            addAction(Intent.ACTION_SHUTDOWN)
+        })
         super.onCreate()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
 
     override fun onDestroy() {
-        unregisterReceiver(batteryStatsReceiver)
+        unregisterReceiver(receiver)
         super.onDestroy()
     }
 }
