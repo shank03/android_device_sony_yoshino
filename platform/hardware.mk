@@ -61,3 +61,7 @@ PRODUCT_PACKAGES += \
 # ChargerImpl
 PRODUCT_PACKAGES += \
     ChargerImpl
+
+# Remove unwanted packages
+PRODUCT_PACKAGES += \
+    RemovePackages
