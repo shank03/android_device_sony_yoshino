@@ -3289,6 +3289,8 @@
   <apn carrier="DiGi GPRS" mcc="502" mnc="16" apn="digiwap" proxy="203.92.128.188" port="80" user="digi" password="" type="default,supl" />
   <apn carrier="Digi MMS" mcc="502" mnc="16" apn="digimms" user="mms" password="mms" mmsc="http://mms.digi.com.my/servlets/mms" mmsproxy="203.92.128.160" mmsport="80" type="mms" />
   <apn carrier="Digi" mcc="502" mnc="16" apn="diginet" user="digi" password="digi" type="default,supl" />
+  <apn carrier="Unifi" mcc="502" mnc="11" apn="unifi" protocol="IPV4V6" roaming_protocol="IPV4V6" type="default" />
+  <apn carrier="Unifi" mcc="502" mnc="153" apn="unifi" protocol="IPV4V6" roaming_protocol="IPV4V6" type="default" />
   <apn carrier="U Mobile Internet" mcc="502" mnc="18" apn="my3g" user="" password="" type="default,supl" />
   <apn carrier="U Mobile MMS" mcc="502" mnc="18" apn="my3g" proxy="" port="" mmsproxy="10.30.5.11" mmsport="8080" mmsc="http://10.30.3.11/servlets/mms" user="" password="" type="mms" />
   <apn carrier="U Mobile Internet" mcc="502" mnc="18" apn="my3g" type="default,supl" />
