@@ -218,6 +218,12 @@ TARGET_RECOVERY_FSTAB := $(PLATFORM_PATH)/ramdisk/fstab.recovery
 # Platform-specific props, add more in device if needed
 TARGET_SYSTEM_PROP += $(PLATFORM_PATH)/system.prop
 
+### TREBLE
+# Enable treble
+PRODUCT_FULL_TREBLE_OVERRIDE ?= true
+# Split build properties
+BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
+
 ### VENDOR SECURITY PATCH LEVEL
 VENDOR_SECURITY_PATCH := 2019-09-01
 
