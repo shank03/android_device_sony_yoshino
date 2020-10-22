@@ -20,4 +20,7 @@
          3 = right side
     -->
     <integer name="config_fingerprintSensorLocation">3</integer>
+
+    <!-- If the Storage Manager settings are enabled. -->
+    <bool name="config_storage_manager_settings_enabled">true</bool>
 </resources>
