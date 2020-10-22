@@ -18,6 +18,8 @@ include device/sony/common-treble/BoardConfigTreble.mk
 PLATFORM_PATH := device/sony/yoshino
 
 ### BOARD
+BOARD_USES_QCOM_HARDWARE := true
+BOARD_VENDOR := sony
 TARGET_BOARD_PLATFORM := msm8998
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno540
 
@@ -72,6 +74,11 @@ BOARD_ROOT_EXTRA_FOLDERS := ocm
 # Build ext4 tools - system/vold
 TARGET_USERIMAGES_USE_EXT4 := true
 
+### FILESYSTEM
+TARGET_FS_CONFIG_GEN := \
+    $(PLATFORM_PATH)/fs/config.aid \
+    $(PLATFORM_PATH)/fs/config.fs
+
 ### DEXPREOPT
 # Enable dexpreopt for everything to speed boot time
 ifeq ($(HOST_OS),linux)
@@ -81,17 +88,34 @@ ifeq ($(HOST_OS),linux)
   endif
 endif
 
-### DISPLAY
+### GRAPHICS
+USE_OPENGL_RENDERER := true
+BOARD_USES_ADRENO := true
+TARGET_USES_ION := true
+
 MAX_EGL_CACHE_KEY_SIZE := 12*1024
 MAX_EGL_CACHE_SIZE := 2048*1024
 
-# Init
+### DISPLAY
+MAX_EGL_CACHE_KEY_SIZE := 12*1024
+MAX_EGL_CACHE_SIZE := 2048*1024
+# qcom/display-caf/msm8998/common.mk
+TARGET_USES_COLOR_METADATA := true
+TARGET_USES_HWC2 := true
+TARGET_USES_GRALLOC1 := true
+
+# RENDERSCRIPT
+OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
+
+### INIT
 TARGET_INIT_VENDOR_LIB := //$(PLATFORM_PATH):libinit_yoshino
 TARGET_RECOVERY_DEVICE_MODULES := libinit_yoshino
 
 ### AUDIO
 # BOARD_SUPPORTS_QAHW := true
+AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
 BOARD_SUPPORTS_SOUND_TRIGGER := true
+BOARD_USES_ALSA_AUDIO := true
 BOARD_USES_SRS_TRUEMEDIA := false
 
 DOLBY_ENABLE := false
@@ -116,6 +140,20 @@ USE_DEVICE_SPECIFIC_CAMERA := true
 # frameworks/av/camera/Android.mk
 TARGET_USES_QTI_CAMERA_DEVICE := true
 
+### CHARGER
+WITH_LINEAGE_CHARGER := false
+WITH_HAVOC_CHARGER := false
+# system/core/healthd/Android.mk
+BOARD_CHARGER_DISABLE_INIT_BLANK := true
+BOARD_CHARGER_ENABLE_SUSPEND := true
+
+# device/sony/treble/core/healthd
+# FIXME Linking issues with libminui, it is not a dep to libhealthd
+#BOARD_HAL_STATIC_LIBRARIES += libhealthd.$(TARGET_DEVICE)
+
+### DRM
+TARGET_ENABLE_MEDIADRM_64 := true
+
 ### WIFI
 BOARD_HAS_QCOM_WLAN := true
 BOARD_HOSTAPD_DRIVER := NL80211
@@ -131,7 +169,7 @@ HOSTAPD_VERSION := VER_0_8_X
 WIFI_DRIVER_FW_PATH_AP  := "ap"
 WIFI_DRIVER_FW_PATH_P2P := "p2p"
 WIFI_DRIVER_FW_PATH_STA := "sta"
-# If built into kernel /sys/kernel/boot_wlan/boot_wlan 
+# If built into kernel /sys/kernel/boot_wlan/boot_wlan
 # with 1 and 0 should be used
 WIFI_DRIVER_STATE_CTRL_PARAM := "/dev/wlan"
 WIFI_DRIVER_STATE_ON := ON
@@ -171,6 +209,7 @@ DEVICE_MATRIX_FILE := $(PLATFORM_PATH)/compatibility_matrix.xml
 TARGET_HW_DISK_ENCRYPTION := true
 
 ### SEPOLICY
+include device/qcom/sepolicy-legacy-um/sepolicy.mk
 BOARD_PLAT_PRIVATE_SEPOLICY_DIR += device/sony/yoshino/sepolicy/private
 BOARD_SEPOLICY_DIRS += device/sony/yoshino/sepolicy/vendor
 
