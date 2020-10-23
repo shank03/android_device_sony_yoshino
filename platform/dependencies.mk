@@ -153,4 +153,4 @@ PRODUCT_PACKAGES += \
     android.hardware.gnss@1.0-service-qti
 
 ## Include MODEM (yoshino/hardware/modem)
-include device/sony/yoshino/hardware/modem/Android.mk
+include device/sony/yoshino-common/hardware/modem/Android.mk
