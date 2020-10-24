@@ -57,6 +57,25 @@ class NetworkSwitcher : Service() {
                 "amss_fsg_maple_tar.mbn", "amss_fsg_maple_dsds_tar.mbn")
 
         private const val MODEM_SWITCHER_STATUS = "/cache/modem/modem_switcher_status"
+
+        // Network bitmasks
+        // 2G
+        private const val GSM = TelephonyManager.NETWORK_TYPE_BITMASK_GSM or TelephonyManager.NETWORK_TYPE_BITMASK_GPRS or
+                TelephonyManager.NETWORK_TYPE_BITMASK_EDGE
+
+        private const val CDMA = TelephonyManager.NETWORK_TYPE_BITMASK_CDMA or TelephonyManager.NETWORK_TYPE_BITMASK_CDMA or
+                TelephonyManager.NETWORK_TYPE_BITMASK_1xRTT
+
+        // 3G
+        private const val EVDO = TelephonyManager.NETWORK_TYPE_BITMASK_EVDO_0 or TelephonyManager.NETWORK_TYPE_BITMASK_EVDO_A or
+                TelephonyManager.NETWORK_TYPE_BITMASK_EVDO_B or TelephonyManager.NETWORK_TYPE_BITMASK_EHRPD
+
+        private const val WCDMA = TelephonyManager.NETWORK_TYPE_BITMASK_HSUPA or
+                TelephonyManager.NETWORK_TYPE_BITMASK_HSDPA or TelephonyManager.NETWORK_TYPE_BITMASK_HSPA or
+                TelephonyManager.NETWORK_TYPE_BITMASK_HSPAP or TelephonyManager.NETWORK_TYPE_BITMASK_UMTS
+
+        // 4G
+        private const val LTE = TelephonyManager.NETWORK_TYPE_BITMASK_LTE or TelephonyManager.NETWORK_TYPE_BITMASK_LTE_CA
     }
 
     override fun onBind(intent: Intent): IBinder? = null
@@ -337,7 +356,7 @@ class NetworkSwitcher : Service() {
             return
         }
 
-        if (tm.setPreferredNetworkType(subID, networkToChange)) {
+        if (tm.setPreferredNetworkTypeBitmask(getNetworkBitmask(networkToChange))) {
             Settings.Global.putInt(applicationContext.contentResolver, Settings.Global.PREFERRED_NETWORK_MODE + subID, networkToChange)
             d("toggle: Successfully changed to " + logPrefNetwork(networkToChange))
         }
@@ -386,6 +405,17 @@ class NetworkSwitcher : Service() {
         RILConstants.NETWORK_MODE_GLOBAL -> RILConstants.NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA
         RILConstants.NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA -> RILConstants.NETWORK_MODE_WCDMA_PREF
         else -> -99
+    }
+
+    /**
+     * @param network is the returned value from [getToggledNetwork]
+     * @return network bitmask as per the toggled [network]
+     */
+    private fun getNetworkBitmask(network: Int): Long = when (network) {
+        RILConstants.NETWORK_MODE_WCDMA_PREF -> GSM or WCDMA
+        RILConstants.NETWORK_MODE_LTE_GSM_WCDMA -> LTE or GSM or WCDMA
+        RILConstants.NETWORK_MODE_LTE_CDMA_EVDO_GSM_WCDMA -> LTE or CDMA or EVDO or GSM or WCDMA
+        else -> GSM or WCDMA    // 3G default
     }
 
     /**
