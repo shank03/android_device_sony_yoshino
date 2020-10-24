@@ -140,7 +140,6 @@ WITH_LINEAGE_CHARGER := false
 WITH_HAVOC_CHARGER := false
 # system/core/healthd/Android.mk
 BOARD_CHARGER_DISABLE_INIT_BLANK := true
-BOARD_CHARGER_ENABLE_SUSPEND := true
 
 # device/sony/treble/core/healthd
 # FIXME Linking issues with libminui, it is not a dep to libhealthd
