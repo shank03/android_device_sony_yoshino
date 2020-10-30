@@ -171,7 +171,6 @@ PRODUCT_PACKAGES += \
 
 # VR
 PRODUCT_PACKAGES += \
-    vr.msm8998 \
     android.hardware.vr@1.0-impl \
     android.hardware.vr@1.0-service
 
