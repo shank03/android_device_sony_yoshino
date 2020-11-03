@@ -13,5 +13,3 @@ allow fsck media_rw_data_file:dir { getattr };
 allow fsck mnt_media_rw_file:dir { search };
 allow fsck rootfs:blk_file { getattr };
 allow fsck tmpfs:blk_file { getattr };
-allow fsck fsck:capability { dac_override };
-allow fsck fsck:capability { dac_read_search };
