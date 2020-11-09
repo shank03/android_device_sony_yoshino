@@ -59,6 +59,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     NetworkSwitcher
 
+### XPERIAPARTS APK
+PRODUCT_PACKAGES += \
+    XperiaParts
+
 ### NFC
 PRODUCT_PACKAGES += \
     com.android.nfc_extras \

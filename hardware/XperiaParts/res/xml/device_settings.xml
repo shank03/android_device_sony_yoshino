@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020, Shashank Verma (shank03) <shashank.verma2002@gmail.com>
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+            android:key="key"
+            android:title="@string/keys">
+
+        <SwitchPreference
+                android:defaultValue="true"
+                android:key="camera_long_press"
+                android:summary="@string/launch_camera_summary"
+                android:title="@string/launch_camera"
+                android:icon="@drawable/ic_round_camera"/>
+
+        <SwitchPreference
+                android:defaultValue="false"
+                android:key="focus_long_press_torch"
+                android:summary="@string/toggle_flash_summary"
+                android:title="@string/toggle_flash"
+                android:icon="@drawable/ic_round_flash"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:key="ns"
+            android:title="Network Switcher">
+
+        <Preference
+                android:key="ns_status"
+                android:title="Status"
+                android:icon="@drawable/ic_outline_info">
+        </Preference>
+
+        <SwitchPreference
+                android:defaultValue="true"
+                android:key="ns_notification"
+                android:summary="Show notification on boot"
+                android:title="Sony Modem Notification"
+                android:icon="@drawable/ic_round_notifications"/>
+
+        <Preference
+                android:key="ns_log"
+                android:title="Logs"
+                android:icon="@drawable/ic_round_notes">
+        </Preference>
+
+    </PreferenceCategory>
+</PreferenceScreen>
