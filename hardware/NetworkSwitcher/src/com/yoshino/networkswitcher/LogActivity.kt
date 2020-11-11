@@ -36,4 +36,8 @@ class LogActivity : Activity() {
             }
         }
     }
+
+    override fun onBackPressed() {
+        finish()
+    }
 }
