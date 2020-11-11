@@ -15,47 +15,73 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-            android:key="key"
+            android:key="camera_key"
             android:title="@string/keys">
 
         <SwitchPreference
                 android:defaultValue="true"
+                android:icon="@drawable/ic_round_camera"
                 android:key="camera_long_press"
                 android:summary="@string/launch_camera_summary"
-                android:title="@string/launch_camera"
-                android:icon="@drawable/ic_round_camera"/>
+                android:title="@string/launch_camera" />
 
         <SwitchPreference
                 android:defaultValue="false"
+                android:icon="@drawable/ic_round_flash"
                 android:key="focus_long_press_torch"
                 android:summary="@string/toggle_flash_summary"
-                android:title="@string/toggle_flash"
-                android:icon="@drawable/ic_round_flash"/>
+                android:title="@string/toggle_flash" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:key="g"
+            android:title="@string/gesture">
+
+        <SwitchPreference
+                android:defaultValue="false"
+                android:icon="@drawable/ic_round_touch"
+                android:key="glove_mode"
+                android:summary="@string/glove_mode_summary"
+                android:title="@string/glove_mode" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
             android:key="ns"
-            android:title="Network Switcher">
+            android:title="@string/network_switcher">
 
         <Preference
+                android:icon="@drawable/ic_outline_info"
                 android:key="ns_status"
-                android:title="Status"
-                android:icon="@drawable/ic_outline_info">
-        </Preference>
+                android:title="@string/status" />
 
         <SwitchPreference
                 android:defaultValue="true"
-                android:key="ns_notification"
-                android:summary="Show notification on boot"
-                android:title="Sony Modem Notification"
-                android:icon="@drawable/ic_round_notifications"/>
+                android:icon="@drawable/ic_round_notifications"
+                android:key="notification"
+                android:summary="@string/sony_modem_notification_summary"
+                android:title="@string/sony_modem_notification" />
 
         <Preference
+                android:icon="@drawable/ic_round_notes"
                 android:key="ns_log"
-                android:title="Logs"
-                android:icon="@drawable/ic_round_notes">
-        </Preference>
+                android:summary="@string/logs_summary"
+                android:title="@string/logs"/>
 
     </PreferenceCategory>
+
+    <PreferenceCategory
+            android:key="cs"
+            android:title="@string/customization_selector">
+
+        <Preference
+                android:icon="@drawable/ic_round_open"
+                android:key="modem_sw"
+                android:summary="@string/modem_switcher_activity_summary"
+                android:title="@string/modem_switcher_activity" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
+

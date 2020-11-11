@@ -16,6 +16,7 @@ package com.yoshino.parts;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragment;
@@ -43,6 +44,13 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
             focusPref.setOnPreferenceChangeListener(this);
         }
 
+        SwitchPreference glovePref = findPreference(GLOVE_MODE);
+        if (glovePref != null) {
+            Settings.System.putInt(glovePref.getContext().getContentResolver(), GLOVE_MODE,
+                    glovePref.isChecked() ? 1 : 0);
+            glovePref.setOnPreferenceChangeListener(this);
+        }
+
         SwitchPreference notificationPref = findPreference(NS_NOTIFICATION);
         if (notificationPref != null) {
             Settings.System.putInt(notificationPref.getContext().getContentResolver(), NS_NOTIFICATION,
@@ -63,6 +71,15 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 return true;
             });
         }
+
+        Preference msActPref = findPreference(MODEM_SWITCHER);
+        if (msActPref != null) {
+            msActPref.setOnPreferenceClickListener(preference -> {
+                preference.getContext().startActivity(new Intent()
+                        .setClassName("com.sonymobile.customizationselector", "com.sonymobile.customizationselector.ModemSwitcherActivity"));
+                return true;
+            });
+        }
     }
 
     @Override
@@ -73,6 +90,10 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 return true;
             case FOCUS_TOGGLE_FLASH:
                 Settings.System.putInt(preference.getContext().getContentResolver(), FOCUS_TOGGLE_FLASH, (boolean) o ? 1 : 0);
+                return true;
+            case GLOVE_MODE:
+                Settings.System.putInt(preference.getContext().getContentResolver(), GLOVE_MODE, (boolean) o ? 1 : 0);
+                SystemProperties.set(GLOVE_PROP, (boolean) o ? "1" : "0");
                 return true;
             case NS_NOTIFICATION:
                 Settings.System.putInt(preference.getContext().getContentResolver(), NS_NOTIFICATION, (boolean) o ? 1 : 0);

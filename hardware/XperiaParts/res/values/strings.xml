@@ -15,11 +15,23 @@
     <string name="device_settings_title">Xperia Parts</string>
     <string name="device_settings_summary">Extra Settings</string>
 
-    <string name="app_name">SonyKeys</string>
+    <string name="app_name">XperiaParts</string>
 
     <string name="keys">Camera Key</string>
     <string name="launch_camera">Launch Camera</string>
     <string name="launch_camera_summary">Open sony camera on long press</string>
     <string name="toggle_flash">Toggle Flash</string>
     <string name="toggle_flash_summary">Long press focus to toggle flash light</string>
+    <string name="gesture">Gesture</string>
+    <string name="glove_mode">Glove Mode</string>
+    <string name="glove_mode_summary">Allow screen to respond to touch with gloves on</string>
+    <string name="network_switcher">Network Switcher</string>
+    <string name="status">Status</string>
+    <string name="sony_modem_notification">Sony Modem Notification</string>
+    <string name="sony_modem_notification_summary">Show notification on boot</string>
+    <string name="logs">Logs</string>
+    <string name="logs_summary">/data/user_de/0/com.yoshino.networkswitcher/files/ns.log</string>
+    <string name="customization_selector">Customization Selector</string>
+    <string name="modem_switcher_activity">Modem Switcher Activity</string>
+    <string name="modem_switcher_activity_summary">Note: Activity may not open if you have default modem or choices aren\'t available</string>
 </resources>
