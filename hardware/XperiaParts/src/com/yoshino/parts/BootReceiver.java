@@ -14,17 +14,24 @@
 
 package com.yoshino.parts;
 
-public class Constants {
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.SystemProperties;
+import android.provider.Settings;
 
-    public static final String TAG = "KeyHandler";
-    public static final String SONY_CAMERA_PKG = "com.sonyericsson.android.camera";
-    public static final String MODEM_SWITCHER = "modem_sw";
+import static com.yoshino.parts.Constants.GLOVE_MODE;
+import static com.yoshino.parts.Constants.GLOVE_PROP;
 
-    public static final String CAMERA_LONG_PRESS = "camera_long_press";
-    public static final String FOCUS_TOGGLE_FLASH = "focus_long_press_torch";
-    public static final String GLOVE_MODE = "glove_mode";
-    public static final String GLOVE_PROP = "persist.sys.touch.glove_mode";
+public class BootReceiver extends BroadcastReceiver {
 
-    public static final String NS_STATUS = "ns_status";
-    public static final String NS_NOTIFICATION = "ns_notification";
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (context == null) {
+            return;
+        }
+
+        boolean isGloveModeEnabled = Settings.System.getInt(context.getContentResolver(), GLOVE_MODE, 0) == 1;
+        SystemProperties.set(GLOVE_PROP, isGloveModeEnabled ? "1" : "0");
+    }
 }
