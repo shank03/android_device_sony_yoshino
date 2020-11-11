@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragment;
 import androidx.preference.SwitchPreference;
 
@@ -29,6 +30,14 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
     @Override
     public void onCreatePreferences(Bundle bundle, String key) {
         addPreferencesFromResource(R.xml.device_settings);
+
+        String buildFlavor = SystemProperties.get("ro.build.flavor", "havoc_lilac");
+        if (buildFlavor.contains("aosp")) {
+            PreferenceCategory cameraCategory = findPreference("camera_key");
+            if (cameraCategory != null) {
+                cameraCategory.setVisible(false);
+            }
+        }
 
         SwitchPreference cameraPref = findPreference(CAMERA_LONG_PRESS);
         if (cameraPref != null) {
