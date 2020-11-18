@@ -41,29 +41,26 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
 
         SwitchPreference cameraPref = findPreference(CAMERA_LONG_PRESS);
         if (cameraPref != null) {
-            Settings.System.putInt(cameraPref.getContext().getContentResolver(), CAMERA_LONG_PRESS,
-                    cameraPref.isChecked() ? 1 : 0);
+            cameraPref.setChecked(Settings.System.getInt(cameraPref.getContext().getContentResolver(), CAMERA_LONG_PRESS, 1) == 1);
             cameraPref.setOnPreferenceChangeListener(this);
         }
 
         SwitchPreference focusPref = findPreference(FOCUS_TOGGLE_FLASH);
         if (focusPref != null) {
-            Settings.System.putInt(focusPref.getContext().getContentResolver(), FOCUS_TOGGLE_FLASH,
-                    focusPref.isChecked() ? 1 : 0);
+            focusPref.setChecked(Settings.System.getInt(focusPref.getContext().getContentResolver(), FOCUS_TOGGLE_FLASH, 0) == 1);
             focusPref.setOnPreferenceChangeListener(this);
         }
 
         SwitchPreference glovePref = findPreference(GLOVE_MODE);
         if (glovePref != null) {
-            Settings.System.putInt(glovePref.getContext().getContentResolver(), GLOVE_MODE,
-                    glovePref.isChecked() ? 1 : 0);
+            glovePref.setChecked(Settings.System.getInt(glovePref.getContext().getContentResolver(), GLOVE_MODE, 0) == 1);
             glovePref.setOnPreferenceChangeListener(this);
         }
 
         SwitchPreference notificationPref = findPreference(CS_NOTIFICATION);
         if (notificationPref != null) {
-            Settings.System.putInt(notificationPref.getContext().getContentResolver(), CS_NOTIFICATION,
-                    notificationPref.isChecked() ? 1 : 0);
+            notificationPref.setChecked(Settings.System.getInt(notificationPref.getContext().getContentResolver(),
+                    CS_NOTIFICATION, 1) == 1);
             notificationPref.setOnPreferenceChangeListener(this);
         }
 
