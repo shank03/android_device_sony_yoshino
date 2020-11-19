@@ -60,23 +60,27 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
             glovePref.setOnPreferenceChangeListener(this);
         }
 
-        SwitchPreference notificationPref = findPreference(NS_NOTIFICATION);
+        SwitchPreference notificationPref = findPreference(CS_NOTIFICATION);
         if (notificationPref != null) {
-            Settings.System.putInt(notificationPref.getContext().getContentResolver(), NS_NOTIFICATION,
+            Settings.System.putInt(notificationPref.getContext().getContentResolver(), CS_NOTIFICATION,
                     notificationPref.isChecked() ? 1 : 0);
             notificationPref.setOnPreferenceChangeListener(this);
         }
 
-        Preference statusPref = findPreference(NS_STATUS);
+        Preference statusPref = findPreference(CS_STATUS);
         if (statusPref != null) {
-            statusPref.setSummary(Settings.System.getString(statusPref.getContext().getContentResolver(), NS_STATUS));
+            statusPref.setOnPreferenceClickListener(preference -> {
+                preference.getContext().startActivity(new Intent()
+                        .setClassName("com.sonymobile.customizationselector", "com.sonymobile.customizationselector.StatusActivity"));
+                return true;
+            });
         }
 
-        Preference logPref = findPreference("ns_log");
+        Preference logPref = findPreference(CS_LOG);
         if (logPref != null) {
             logPref.setOnPreferenceClickListener(preference -> {
                 preference.getContext().startActivity(new Intent()
-                        .setClassName("com.yoshino.networkswitcher", "com.yoshino.networkswitcher.LogActivity"));
+                        .setClassName("com.sonymobile.customizationselector", "com.sonymobile.customizationselector.LogActivity"));
                 return true;
             });
         }
@@ -104,8 +108,8 @@ public class DeviceSettingsFragment extends PreferenceFragment implements Prefer
                 Settings.System.putInt(preference.getContext().getContentResolver(), GLOVE_MODE, (boolean) o ? 1 : 0);
                 SystemProperties.set(GLOVE_PROP, (boolean) o ? "1" : "0");
                 return true;
-            case NS_NOTIFICATION:
-                Settings.System.putInt(preference.getContext().getContentResolver(), NS_NOTIFICATION, (boolean) o ? 1 : 0);
+            case CS_NOTIFICATION:
+                Settings.System.putInt(preference.getContext().getContentResolver(), CS_NOTIFICATION, (boolean) o ? 1 : 0);
                 return true;
         }
         return false;
