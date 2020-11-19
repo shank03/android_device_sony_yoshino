@@ -55,10 +55,6 @@ PRODUCT_PACKAGES += \
     libipanat \
     liboffloadhal
 
-### NETWORKSWITCHER APK
-PRODUCT_PACKAGES += \
-    NetworkSwitcher
-
 ### XPERIAPARTS APK
 PRODUCT_PACKAGES += \
     XperiaParts
