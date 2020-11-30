@@ -7,7 +7,6 @@ public class XmlConstants {
     public static final String CONFIG_ID = "config_id";
     public static final String DEFAULT_CONFIG = "default";
     public static final String GID1 = "gid1";
-    public static final String GID2 = "gid2";
     public static final String IMSI = "imsi";
     public static final String ICCID = "iccid";
     public static final String MCC = "mcc";

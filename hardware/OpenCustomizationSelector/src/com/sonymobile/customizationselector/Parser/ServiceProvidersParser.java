@@ -77,11 +77,6 @@ public class ServiceProvidersParser {
                                         if (!TextUtils.isEmpty(tag)) {
                                             simCombination.setGid1(tag);
                                         }
-                                    } else if (GID2.equalsIgnoreCase(tag)) {
-                                        tag = fix(xml.nextText());
-                                        if (!TextUtils.isEmpty(tag)) {
-                                            simCombination.setGid2(tag);
-                                        }
                                     }
                                 }
                             }

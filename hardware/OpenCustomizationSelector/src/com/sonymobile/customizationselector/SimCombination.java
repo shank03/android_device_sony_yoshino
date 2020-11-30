@@ -3,7 +3,6 @@ package com.sonymobile.customizationselector;
 public final class SimCombination {
 
     private String mGid1 = null;
-    private String mGid2 = null;
     private String mImsi = null;
     private String mMCC = null;
     private String mMNC = null;
@@ -15,10 +14,6 @@ public final class SimCombination {
 
     public String getGid1() {
         return this.mGid1;
-    }
-
-    public String getGid2() {
-        return this.mGid2;
     }
 
     public String getIMSI() {
@@ -43,10 +38,6 @@ public final class SimCombination {
 
     public void setGid1(String str) {
         this.mGid1 = str;
-    }
-
-    public void setGid2(String str) {
-        this.mGid2 = str;
     }
 
     public void setIMSI(String str) {
