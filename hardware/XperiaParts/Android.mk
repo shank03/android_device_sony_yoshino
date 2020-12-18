@@ -20,6 +20,11 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
+# Include key handler only in havoc
+ifeq ($(IS_PE),false)
+LOCAL_SRC_FILES += $(call all-java-files-under, src-key)
+endif
+
 LOCAL_PACKAGE_NAME := XperiaParts
 LOCAL_CERTIFICATE := platform
 LOCAL_PRIVATE_PLATFORM_APIS := true
