@@ -13,14 +13,12 @@
 # limitations under the License.
 
 ### AUDIO
-PRODUCT_PACKAGES += \
-    libvolumelistener \
-    bthost_if
 
 PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.r_submix.default \
-    audio.usb.default
+    audio.usb.default \
+    libvolumelistener
 
 ### CAMERA
 PRODUCT_PACKAGES += \
