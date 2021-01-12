@@ -44,7 +44,7 @@ public class CSLog {
     }
 
     public static void logSimValues(Context context, String tag) {
-        String subscriberID = "", simOP = "", simOpName = "";
+        String simOP = "", simOpName = "";
 
         int defaultSubscriptionId = SubscriptionManager.getDefaultSubscriptionId();
         TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
@@ -54,11 +54,10 @@ public class CSLog {
             if (simOP == null) {
                 simOP = "";
             }
-            subscriberID = telephonyManager.getSubscriberId(defaultSubscriptionId);
             String simOperatorName = telephonyManager.getSimOperatorName(defaultSubscriptionId);
             simOpName = simOperatorName != null ? simOperatorName.replaceAll("[\n\r]", "").trim() : "";
         }
-        d(tag, "SimValues: MCC-MNC=" + simOP + ", SP-name=" + simOpName + ", IMSI=" + subscriberID);
+        d(tag, "SimValues: MCC-MNC=" + simOP + ", SP-name=" + simOpName);
     }
 
     public static void logVersion(Context context, String tag) {

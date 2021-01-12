@@ -85,7 +85,7 @@ public class CommonUtil {
             String simSerialNumber = telephonyManager.getSimSerialNumber(i);
             String simOperatorName = telephonyManager.getSimOperatorName(i);
             String groupIdLevel1 = telephonyManager.getGroupIdLevel1(i);
-            CSLog.d(TAG, "SimOperator= " + simOperator + ", IMSI= " + subscriberId + ", ICCID = " + simSerialNumber
+            CSLog.d(TAG, "SimOperator= " + simOperator + ", ICCID = " + simSerialNumber
                     + ", SPN = " + simOperatorName + ", gid1 = " + groupIdLevel1);
 
             if (!TextUtils.isEmpty(simOperator) && !TextUtils.isEmpty(subscriberId) && !TextUtils.isEmpty(simSerialNumber)) {

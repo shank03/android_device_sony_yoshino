@@ -73,7 +73,7 @@ public class SimConfigId {
                 count++;
             }
             if (simCombo.getIMSI() != null && matchOnImsi(simCombo.getIMSI(), simParams.get(IMSI))) {
-                CSLog.d(TAG, "getMappingMatch - imsi: " + simCombo.getIMSI() + " for: " + simCombo.getSimConfigId());
+                CSLog.d(TAG, "getMappingMatch - imsi: [hidden] for: " + simCombo.getSimConfigId());
                 count++;
             }
             if (simCombo.getGid1() != null &&
