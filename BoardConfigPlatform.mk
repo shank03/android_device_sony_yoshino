@@ -147,9 +147,10 @@ BOARD_VENDOR_SEPOLICY_DIRS += device/sony/yoshino-common/sepolicy/vendor
 ### RECOVERY
 TARGET_RECOVERY_FSTAB := $(PLATFORM_PATH)/ramdisk/fstab.recovery
 
-### SYSTEM PROPS
-# Platform-specific props, add more in device if needed
-TARGET_SYSTEM_PROP += $(PLATFORM_PATH)/system.prop
+### PROPS
+# This is a reset, add more in devices if needed
+TARGET_SYSTEM_PROP := $(PLATFORM_PATH)/system.prop
+TARGET_VENDOR_PROP := $(PLATFORM_PATH)/vendor.prop
 
 ### TREBLE
 # Enable treble
