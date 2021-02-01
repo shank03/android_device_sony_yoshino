@@ -145,7 +145,11 @@ BOARD_PLAT_PRIVATE_SEPOLICY_DIR += device/sony/yoshino-common/sepolicy/private
 BOARD_VENDOR_SEPOLICY_DIRS += device/sony/yoshino-common/sepolicy/vendor
 
 ### RECOVERY
+ifneq ($(filter maple maple_dsds, $(TARGET_DEVICE)),)
+TARGET_RECOVERY_FSTAB := $(PLATFORM_PATH)/ramdisk/fstab_maple.recovery
+else
 TARGET_RECOVERY_FSTAB := $(PLATFORM_PATH)/ramdisk/fstab.recovery
+endif
 
 ### PROPS
 # This is a reset, add more in devices if needed
