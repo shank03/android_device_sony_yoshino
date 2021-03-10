@@ -18,10 +18,13 @@ import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Camera;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -37,6 +40,7 @@ public class KeyHandler implements DeviceKeyHandler {
 
     private final Context context;
     private PowerManager pm = null;
+    private Vibrator vibrator = null;
 
     private boolean isActionUpFactor = false;
     private boolean handlerStarted = false;
@@ -59,6 +63,9 @@ public class KeyHandler implements DeviceKeyHandler {
 
         if (pm == null) {
             pm = context.getSystemService(PowerManager.class);
+        }
+        if (vibrator == null) {
+            vibrator = context.getSystemService(Vibrator.class);
         }
 
         // FOCUS KEY (1st Stage)
@@ -144,6 +151,7 @@ public class KeyHandler implements DeviceKeyHandler {
 
         Log.d(TAG, "startCamera: Starting camera");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
         context.startActivityAsUser(intent, UserHandle.CURRENT_OR_SELF);
     }
 
@@ -164,18 +172,19 @@ public class KeyHandler implements DeviceKeyHandler {
     }
 
     /**
-     * Get status of {@link Constants#SONY_CAMERA_PKG} app
+     * Get status of camera
      *
-     * @return if in foreground and interactive
+     * @return whether in use
      */
     private boolean isCameraAppRunning() {
-        ActivityManager manager = context.getSystemService(ActivityManager.class);
-        List<ActivityManager.RunningAppProcessInfo> list = manager.getRunningAppProcesses();
-
-        for (ActivityManager.RunningAppProcessInfo info : list) {
-            if (info.processName.equals(SONY_CAMERA_PKG)
-                    && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                return true;
+        Camera camera = null;
+        try {
+            camera = camera.open();
+        } catch (Exception e) {
+            return true;
+        } finally {
+            if (camera != null) {
+                camera.release();
             }
         }
         return false;
