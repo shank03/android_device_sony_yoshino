@@ -157,6 +157,3 @@ PRODUCT_PACKAGES += \
     liblocation_api \
     android.hardware.gnss@1.0-impl-qti \
     android.hardware.gnss@1.0-service-qti
-
-## Include MODEM (yoshino/hardware/modem)
-include device/sony/yoshino-common/hardware/modem/Android.mk
