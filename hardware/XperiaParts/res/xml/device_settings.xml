@@ -14,26 +14,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:key="camera_key"
-        android:title="@string/keys">
-
-        <SwitchPreference
-            android:defaultValue="true"
-            android:icon="@drawable/ic_outline_photo_camera_24"
-            android:key="camera_long_press"
-            android:summary="@string/launch_camera_summary"
-            android:title="@string/launch_camera" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_outline_highlight_24"
-            android:key="focus_long_press_torch"
-            android:summary="@string/toggle_flash_summary"
-            android:title="@string/toggle_flash" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
         android:key="g"
         android:title="@string/gesture">
 
